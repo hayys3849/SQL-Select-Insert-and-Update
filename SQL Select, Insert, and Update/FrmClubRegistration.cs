@@ -17,19 +17,55 @@ namespace SQL_Select__Insert__and_Update
             InitializeComponent();
         }
 
-        private void label2_Click(object sender, EventArgs e)
+       
+        private ClubRegistrationQuery clubRegistrationQuery;
+        private int ID, Age, count;
+        private string FirstName, MiddleName, LastName, Gender, Program;
+        private long StudentId;
+
+
+        private void FrmClubRegistration_Load(object sender, EventArgs e)
         {
+            clubRegistrationQuery = new ClubRegistrationQuery();
+            RefreshListOfClubMembers();
+        }
+
+        private void RefreshListOfClubMembers()
+        {
+            clubRegistrationQuery.DisplayList();
+            dataGridView1.DataSource = clubRegistrationQuery.bindingSource;
+        }
+
+
+        private int RegistrationID()
+        {
+            count++;
+            return count;
+        }
+
+        private void RegisterButton_Click(object sender, EventArgs e)
+        {
+            ID = RegistrationID();
+
+            StudentId = long.Parse(txtStudentId.Text);
+            FirstName = txtFirstName.Text;
+            MiddleName = txtMiddleName.Text;
+            LastName = txtLastName.Text;
+            Age = int.Parse(txtAge.Text);
+            Gender = cmbGender.SelectedItem?.ToString() ?? ""; 
+            Program = cmbProgram.SelectedItem?.ToString() ?? "";  
+
+
+
+            bool result = clubRegistrationQuery.RegisterStudent(ID, StudentId, FirstName, MiddleName, LastName, Age, Gender, Program);
 
         }
 
-        private void label6_Click(object sender, EventArgs e)
+        private void button3_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void panel6_Paint(object sender, PaintEventArgs e)
-        {
-
+            RefreshListOfClubMembers();
         }
     }
+
+
 }
