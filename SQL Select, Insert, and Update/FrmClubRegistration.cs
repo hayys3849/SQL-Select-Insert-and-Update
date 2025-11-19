@@ -47,11 +47,27 @@ namespace SQL_Select__Insert__and_Update
         {
             ID = RegistrationID();
 
-            StudentId = long.Parse(txtStudentId.Text);
+            if (!long.TryParse(txtStudentId.Text, out StudentId))
+            {
+                MessageBox.Show("Please enter a valid Student ID.");
+                return;
+            }
+
+            if (!int.TryParse(txtAge.Text, out Age))
+            {
+                MessageBox.Show("Please enter a valid Age.");
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(txtStudentId.Text) || string.IsNullOrWhiteSpace(txtAge.Text))
+            {
+                MessageBox.Show("Student ID and Age cannot be empty.");
+                return;
+            }
+
+
             FirstName = txtFirstName.Text;
             MiddleName = txtMiddleName.Text;
             LastName = txtLastName.Text;
-            Age = int.Parse(txtAge.Text);
             Gender = cmbGender.SelectedItem?.ToString() ?? ""; 
             Program = cmbProgram.SelectedItem?.ToString() ?? "";  
 
