@@ -35,8 +35,7 @@ namespace SQL_Select__Insert__and_Update
         public int _Age;
         public ClubRegistrationQuery()
         {
-            connectionString = @"Data Source=LAB-A-PC00;Initial Catalog=Club_DB;User ID=dulalia.r;Password=12345;Encrypt=False";
-
+            connectionString = @"Data Source=ROD\SQLEXPRESS;Initial Catalog=Club_DB;Integrated Security=True;TrustServerCertificate=True";
 
             sqlConnect = new SqlConnection(connectionString);
 
@@ -82,7 +81,94 @@ namespace SQL_Select__Insert__and_Update
             sqlConnect.Close();
             return true;
         }
+
+        public bool StudentIdExists(long studentId)
+        {
+            string query = "SELECT COUNT(*) FROM ClubMembers WHERE StudentID = @StudentID";
+
+            using (SqlCommand cmd = new SqlCommand(query, sqlConnect))
+            {
+                cmd.Parameters.AddWithValue("@StudentID", studentId);
+
+                sqlConnect.Open();
+                int count = (int)cmd.ExecuteScalar();
+                sqlConnect.Close();
+
+                return count > 0; // TRUE if duplicate
+            }
+        }
+
+        public List<long> GetAllStudentIDs()
+        {
+            List<long> ids = new List<long>();
+
+            string query = "SELECT StudentId FROM ClubMembers";
+
+            sqlCommand = new SqlCommand(query, sqlConnect);
+            sqlConnect.Open();
+            sqlReader = sqlCommand.ExecuteReader();
+
+            while (sqlReader.Read())
+            {
+                ids.Add(sqlReader.GetInt64(0));
+            }
+
+            sqlReader.Close();
+            sqlConnect.Close();
+
+            return ids;
+        }
+
+        public DataRow GetMemberByID(long studentID)
+        {
+            string query = "SELECT * FROM ClubMembers WHERE StudentId = @id";
+            sqlAdapter = new SqlDataAdapter(query, sqlConnect);
+            sqlAdapter.SelectCommand.Parameters.AddWithValue("@id", studentID);
+
+            DataTable dt = new DataTable();
+            sqlAdapter.Fill(dt);
+
+            if (dt.Rows.Count > 0)
+                return dt.Rows[0];
+            else
+                return null;
+        }
+
+        public bool UpdateStudent(long studentID, string firstName, string middleName, string lastName, int age, string gender, string program)
+        {
+            string query = @"UPDATE ClubMembers 
+                     SET FirstName = @FirstName, 
+                         MiddleName = @MiddleName, 
+                         LastName = @LastName, 
+                         Age = @Age, 
+                         Gender = @Gender, 
+                         Program = @Program
+                     WHERE StudentId = @StudentID";
+
+            using (SqlCommand cmd = new SqlCommand(query, sqlConnect))
+            {
+                cmd.Parameters.AddWithValue("@FirstName", firstName);
+                cmd.Parameters.AddWithValue("@MiddleName", middleName);
+                cmd.Parameters.AddWithValue("@LastName", lastName);
+                cmd.Parameters.AddWithValue("@Age", age);
+                cmd.Parameters.AddWithValue("@Gender", gender);
+                cmd.Parameters.AddWithValue("@Program", program);
+                cmd.Parameters.AddWithValue("@StudentID", studentID);
+
+                sqlConnect.Open();
+                cmd.ExecuteNonQuery();
+                sqlConnect.Close();
+            }
+
+            // Refresh DataTable for DataGridView
+            DisplayList(); // This reloads the DataTable and updates the BindingSource
+            return true;
+        }
+
+
     }
+
+
 
 
 }
